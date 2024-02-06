@@ -16,7 +16,9 @@
 
 package org.springframework.samples.petclinic.repository.jdbc;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -41,9 +43,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Profile("jdbc")
 public class JdbcSpecialtyRepositoryImpl implements SpecialtyRepository {
-
+	
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
+	
 	private SimpleJdbcInsert insertSpecialty;
 
 	@Autowired
@@ -70,25 +72,7 @@ public class JdbcSpecialtyRepositoryImpl implements SpecialtyRepository {
         return specialty;
 	}
 
-    @Override
-    public List<Specialty> findSpecialtiesByNameIn(Set<String> names) {
-        List<Specialty> specialties;
-        try{
-            String sql = "SELECT id, name FROM specialties WHERE specialties.name IN (:names)";
-            Map<String, Object> params = new HashMap<>();
-            params.put("names", names);
-            specialties = this.namedParameterJdbcTemplate.query(
-                sql,
-                params,
-                new BeanPropertyRowMapper<>(Specialty.class));
-        } catch (EmptyResultDataAccessException ex){
-            throw new ObjectRetrievalFailureException(Specialty.class, names);
-        }
-
-        return specialties;
-    }
-
-    @Override
+	@Override
 	public Collection<Specialty> findAll() throws DataAccessException {
 		Map<String, Object> params = new HashMap<>();
         return this.namedParameterJdbcTemplate.query(

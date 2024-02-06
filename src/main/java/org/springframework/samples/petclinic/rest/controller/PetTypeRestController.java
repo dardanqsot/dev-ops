@@ -29,10 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.transaction.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @CrossOrigin(exposedHeaders = "errors, content-type")
@@ -72,14 +70,10 @@ public class PetTypeRestController implements PettypesApi {
     @Override
     public ResponseEntity<PetTypeDto> addPetType(PetTypeDto petTypeDto) {
         HttpHeaders headers = new HttpHeaders();
-        if (Objects.nonNull(petTypeDto.getId()) && !petTypeDto.getId().equals(0)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else {
-            final PetType type = petTypeMapper.toPetType(petTypeDto);
-            this.clinicService.savePetType(type);
-            headers.setLocation(UriComponentsBuilder.newInstance().path("/api/pettypes/{id}").buildAndExpand(type.getId()).toUri());
-            return new ResponseEntity<>(petTypeMapper.toPetTypeDto(type), headers, HttpStatus.CREATED);
-        }
+        final PetType type = petTypeMapper.toPetType(petTypeDto);
+        this.clinicService.savePetType(type);
+        headers.setLocation(UriComponentsBuilder.newInstance().path("/api/pettypes/{id}").buildAndExpand(type.getId()).toUri());
+        return new ResponseEntity<>(petTypeMapper.toPetTypeDto(type), headers, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole(@roles.VET_ADMIN)")

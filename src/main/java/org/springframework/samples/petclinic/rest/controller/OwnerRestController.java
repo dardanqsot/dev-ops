@@ -24,7 +24,6 @@ import org.springframework.samples.petclinic.mapper.PetMapper;
 import org.springframework.samples.petclinic.mapper.VisitMapper;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
-import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.rest.api.OwnersApi;
 import org.springframework.samples.petclinic.rest.dto.*;
@@ -36,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.transaction.Transactional;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -140,8 +138,6 @@ public class OwnerRestController implements OwnersApi {
         Owner owner = new Owner();
         owner.setId(ownerId);
         pet.setOwner(owner);
-        PetType petType = this.clinicService.findPetTypeByName(pet.getType().getName());
-        pet.setType(petType);
         this.clinicService.savePet(pet);
         PetDto petDto = petMapper.toPetDto(pet);
         headers.setLocation(UriComponentsBuilder.newInstance().path("/api/pets/{id}")
@@ -164,20 +160,4 @@ public class OwnerRestController implements OwnersApi {
         return new ResponseEntity<>(visitDto, headers, HttpStatus.CREATED);
     }
 
-
-    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
-    @Override
-    public ResponseEntity<PetDto> getOwnersPet(Integer ownerId, Integer petId) {
-        Owner owner = this.clinicService.findOwnerById(ownerId);
-        Pet pet = this.clinicService.findPetById(petId);
-        if (owner == null || pet == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            if (!pet.getOwner().equals(owner)) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            } else {
-                return new ResponseEntity<>(petMapper.toPetDto(pet), HttpStatus.OK);
-            }
-        }
-    }
 }
